@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<h1 class="mb-5 text-center">{{ question.question_text }}</h1>
+
+<ul class="list-group mb-5">
+	{% for choice in question.choice_set.all %}
+	<li class="list-group-item">
+		{{ choice.choice_text }}  <span class="badge badge-success float-right">{{ choice.votes }} vote{{ choice.votes | pluralize }}</span>
+	</li>
+	{% endfor %}
+</ul>
+
+<div class="chart-container" 
+    style="
+        position: relative; 
+        height:40vh; 
+        width:80vw; 
+    "
+>
+    <canvas id="myChart"></canvas>
+    <a class="btn btn-secondary mb-5 mt-2" href="{% url 'polls:index' %}">Back To Polls</a>
+    <a class="btn btn-dark mb-5 mt-2" href="{% url 'polls:detail' question.id %}">Vote again?</a>
+</div>
+
+<script>
+    var state = {
+        'items': [],
+        'values': [],
+    }
+
+    var objId = "{{question.id}}";
+
+    var dataURL = `/polls/resultsdata/${objId}/` ;
+    $.ajax({
+        method:'GET',
+        url: dataURL,
+        success: function(response){
+            console.log('RESPONSE: ', response);
+            for (let i in response){
+                let key = Object.keys(response[i])[0];
+                let value = Object.values(response[i])[0];
+
+                state.items.push(key);
+                state.values.push(value);
+            }
+
+            console.log('STATE: ', state);
+            buildChart();
+        }
+    })
+
+    function buildChart() {
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: state.items,
+                datasets: [{
+                    label: '# of Votes',
+                    data: state.values,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+</script>
+
+{% endblock %}
