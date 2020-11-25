@@ -8,4 +8,4 @@
  Django Voting App + Charts | Traversy Media Django Crash Course Advanced - Dennys Ivy:
  https://www.youtube.com/watch?v=dPoGRYz-n5E
  
- Instead of using Zingcharts I used Chart.JS.
+ Instead of using Zingcharts, I used Chart.JS.
